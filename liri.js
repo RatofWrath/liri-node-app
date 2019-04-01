@@ -3,6 +3,7 @@ require("dotenv").config();
 var keys = require("./keys.js");
 var axios = require("axios");
 var Spotify = require("node-spotify-api");
+var moment = require("moment");
 
 var command = process.argv[2];
 var request = process.argv.slice(3).join(" ");
@@ -36,10 +37,23 @@ switch(command){
 }
 
 function findConcertInfo(request){
-    console.log("Venue: ");
-    console.log("Location: ");
-    console.log("Date: ");
+    var queryURL = "https://rest.bandsintown.com/artists/" + request + "/events?app_id=codingbootcamp";
 
+    axios.get(queryURL).then(
+        function(response){
+            for(i = 0; i < response.data.length; i++){
+                //console.log(response.data[0]);
+                var concertFormat = "MM/DD/YYYY"
+                var concertDate = response.data[i].datetime;
+                var mDate = moment(concertDate).format(concertFormat);
+
+                console.log("Venue Name: " + response.data[i].venue.name);
+                console.log("Location: " + response.data[i].venue.city + ", " + response.data[i].venue.country);
+                console.log("Date: " + mDate);
+                console.log(" ");
+            }
+        }
+    );
 }
 
 function findSongInfo(request){
@@ -54,16 +68,23 @@ function findSongInfo(request){
     spotify
         .search({type: 'track', query: request})
         .then(function(response) {
-            console.log(response);
+            //console.log(response);
+            var responseString = JSON.stringify(response.tracks.items[0]);
+            //console.log(responseString)
+            var toJSONSong = JSON.parse(responseString);
+            console.log(toJSONSong);
+            //console.log(toJSONSong.artists);
+
+            console.log("Artist: " + toJSONSong.artists.name);
+            console.log("Song Name: " + toJSONSong.name)
+            console.log("Preview Link: " + toJSONSong.preview_url)
+            console.log("Album: " + toJSONSong.album.name);
         })
         .catch(function(err) {
             console.log(err);
         })
+    }
 
-    console.log("Song Name: ");
-    console.log("Preview Link: ");
-    console.log("Album: ");
-}
 
 function findMovieInfo(request){
     var queryUrl = "http://www.omdbapi.com/?t=" + request + "&y=&plot=short&apikey=trilogy";
