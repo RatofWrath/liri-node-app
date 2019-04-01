@@ -15,7 +15,7 @@ switch(command){
         break;
 
     case "spotify-this-song":
-        if(request === undefined){
+        if(process.argv.length < 4){
             request = "The Sign";
         }
 
@@ -23,7 +23,7 @@ switch(command){
         break;
     
     case "movie-this":
-        if(request === undefined){
+        if(process.argv.length < 4){
             request = "Mr. Nobody";
         }
         findMovieInfo(request);
