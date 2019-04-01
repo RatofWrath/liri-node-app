@@ -4,6 +4,7 @@ var keys = require("./keys.js");
 var axios = require("axios");
 var Spotify = require("node-spotify-api");
 var moment = require("moment");
+var fs = require("fs");
 
 var command = process.argv[2];
 var request = process.argv.slice(3).join(" ");
@@ -28,7 +29,7 @@ switch(command){
         findMovieInfo(request);
         break;
     
-    case "do-what-this-say":
+    case "do-what-this-says":
         findRandomInfo();
         break;
     
@@ -72,10 +73,11 @@ function findSongInfo(request){
             var responseString = JSON.stringify(response.tracks.items[0]);
             //console.log(responseString)
             var toJSONSong = JSON.parse(responseString);
-            console.log(toJSONSong);
+            //console.log(toJSONSong);
             //console.log(toJSONSong.artists);
 
-            console.log("Artist: " + toJSONSong.artists.name);
+            //console.log("Artist: " + toJSONSong.artists.name);
+            console.log("Artist: " + toJSONSong.artists[0].name);
             console.log("Song Name: " + toJSONSong.name)
             console.log("Preview Link: " + toJSONSong.preview_url)
             console.log("Album: " + toJSONSong.album.name);
@@ -110,6 +112,42 @@ function findMovieInfo(request){
     );
 }
 
-function findRandomInfo(request){
+function findRandomInfo(){
+    fs.readFile("random.txt", "utf8", function(error, data){
+        if(error) {
+            return console.log(error);
+        }
+
+        //console.log(data);
+        var dataArr = data.split(",");
+        //console.log(dataArr);
+
+        var command = dataArr[0];
+        var request = dataArr[1];
+
+        switch(command){
+            case "concert-this":
+                findConcertInfo(request);
+                break;
+        
+            case "spotify-this-song":
+                if(request === undefined){
+                    request = "The Sign";
+                }
+        
+                findSongInfo(request);
+                break;
+            
+            case "movie-this":
+                if(request === undefined){
+                    request = "Mr. Nobody";
+                }
+                findMovieInfo(request);
+                break;
+            
+            default:
+                console.log("Your request is invalid, please try again.");
+        }
+    })
 
 }
